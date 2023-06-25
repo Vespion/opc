@@ -1,0 +1,36 @@
+{
+  "name": "opc",
+  "version": "0.0.0-dev",
+  "description": "Open, edit and manipulate packages using the Open Packaging Conventions",
+  "keywords": [
+    "opc",
+    "packaging",
+    "open packaging conventions",
+    "office",
+    "package"
+  ],
+  "license": "MIT",
+  "packageManager": "pnpm@8.6.3",
+  "engines": {
+    "pnpm": ">=8"
+  },
+  "author": {
+    "email": "21206333+Vespion@users.noreply.github.com",
+    "name": "Vespion",
+    "homepage": "https://github.com/vespion"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vespion/opc"
+  },
+  "bugs": {
+    "url": "https://github.com/Vespion/opc/issues"
+  },
+  "scripts": {
+  },
+  "dependencies": {
+
+  },
+  "devDependencies": {
+  }
+}
