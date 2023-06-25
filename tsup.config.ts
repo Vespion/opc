@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsup';
 
 export default defineConfig({
     target: 'es2016',
@@ -10,4 +10,4 @@ export default defineConfig({
     dts: true,
     treeshake: "recommended",
     minify: false
-})
+});
