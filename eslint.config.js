@@ -12,14 +12,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const compat = new FlatCompat({
-	baseDirectory: __dirname,
+	baseDirectory: __dirname
 });
 
 export default [
 	js.configs.recommended,
 	{
 		languageOptions: {
-			sourceType: "module",
+			sourceType: "module"
 		},
 		plugins: {
 			woke,
@@ -36,7 +36,7 @@ export default [
 	{
 		files: ["**/*.ts"],
 		plugins: {
-			deprecation,
+			deprecation
 		},
 		rules: {
 			"deprecation/deprecation": "warn"
@@ -46,9 +46,10 @@ export default [
 			parser: tsParser,
 			parserOptions: {
 				ecmaVersion: "latest",
-				project: ["./tsconfig.json"],
-			},
-		},
+				project: ["./tsconfig.json"]
+			}
+		}
 	},
-	...compat.extends("plugin:json-schema-validator/recommended")
+	...compat.extends("plugin:json-schema-validator/recommended"),
+	...compat.extends("prettier")
 ];
