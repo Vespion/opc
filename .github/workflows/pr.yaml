@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   testing:
     name: Tests
@@ -12,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [16, 18, lts]
+        node: [14.6, 16, 18, lts]
     with:
       node-version: ${{ matrix.node }}
 

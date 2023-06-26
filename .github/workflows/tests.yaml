@@ -12,6 +12,9 @@ on:
         required: false
         default: "*"
 
+permissions:
+  contents: read
+
 jobs:
   unit-tests:
 #   skip running tests since we don't have any yet :P
