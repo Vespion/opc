@@ -1,45 +1,51 @@
 name: Tests
 
 on:
-  workflow_call:
-    inputs:
-      os:
-        type: string
-        required: false
-        default: ubuntu-latest
-      node-version:
-        type: string
-        required: false
-        default: "*"
+    workflow_call:
+        inputs:
+            os:
+                type: string
+                required: false
+                default: ubuntu-latest
+            node-version:
+                type: string
+                required: false
+                default: "*"
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  unit-tests:
-#   skip running tests since we don't have any yet :P
-    if: false
-    name: Unit Tests on ${{ inputs.os }} for node ${{ inputs.node-version }}
-    runs-on: ${{ inputs.os }}
-    permissions:
-      contents: read
-      checks: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    unit-tests:
+        #   skip running tests since we don't have any yet :P
+        if: false
+        name: Unit Tests on ${{ inputs.os }} for node ${{ inputs.node-version }}
+        runs-on: ${{ inputs.os }}
+        permissions:
+            contents: read
+            checks: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
 
-      - name: Install Node.js
-        id: node-setup
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ inputs.node-version }}
-          cache: pnpm
+            - name: Install Node.js
+              id: node-setup
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ inputs.node-version }}
+                  cache: pnpm
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+            - name: Setup PNPM
+              uses: pnpm/action-setup@v2
 
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+            - name: Install Dependencies
+              run: pnpm install --frozen-lockfile
 
-      - name: Test
-        run: echo "this is where tests would be"
+            - name: Compile Tests
+              run: pnpm tsc -p tsconfig.tests.json
+
+            - name: Install Reporter
+              run: pnpm add tap-mocha-reporter
+
+            - name: Test
+              run: pnpm ava --tap | pnpm tap-mocha-reporter json

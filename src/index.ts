@@ -1,2 +1,2 @@
-export { add } from "./add";
-export { sub } from "./sub";
+export * from "./types/Errors";
+export * from "./types/IRI";

@@ -283,3 +283,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+### Non templated values
+# Ignore compiled test files
+test_out
