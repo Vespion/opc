@@ -1,47 +1,47 @@
 name: Release Package
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  final-tests:
-    name: Pre-release tests
-    uses: ./tests.yaml@main
+    final-tests:
+        name: Pre-release tests
+        uses: ./tests.yaml@main
 
-  semantic-release:
-    name: Release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write # to be able to publish a GitHub release
-      issues: write # to be able to comment on released issues
-      pull-requests: write # to be able to comment on released pull requests
-      id-token: write # to enable use of OIDC for npm provenance
-    needs:
-      - final-tests
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    semantic-release:
+        name: Release
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write # to be able to publish a GitHub release
+            issues: write # to be able to comment on released issues
+            pull-requests: write # to be able to comment on released pull requests
+            id-token: write # to enable use of OIDC for npm provenance
+        needs:
+            - final-tests
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
 
-      - name: Install Node.js
-        id: node-setup
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ inputs.node-version }}
-          cache: pnpm
+            - name: Install Node.js
+              id: node-setup
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ inputs.node-version }}
+                  cache: pnpm
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+            - name: Setup PNPM
+              uses: pnpm/action-setup@v2
 
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+            - name: Install Dependencies
+              run: pnpm install --frozen-lockfile
 
-      - name: Build
-        run: pnpm build
+            - name: Build
+              run: pnpm build
 
-      - name: Release
-        run: pnpm run release
+            - name: Release
+              run: pnpm run release

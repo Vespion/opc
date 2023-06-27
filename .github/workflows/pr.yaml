@@ -1,64 +1,108 @@
 name: Pull Request Tasks
 
 on:
-  pull_request:
-    branches:
-      - main
+    pull_request:
+        branches:
+            - main
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  testing:
-    name: Tests
-    uses: ./tests.yaml
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [14.6, 16, 18, lts]
-    with:
-      node-version: ${{ matrix.node }}
-
-  linting:
-    name: Linting and Style checks
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      checks: write
-      pull-requests: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install Node.js
-        id: node-setup
-        uses: actions/setup-node@v3
+    testing:
+        name: Tests
+        uses: ./tests.yaml
+        strategy:
+            fail-fast: false
+            matrix:
+                node: [14.6, 16, 18, lts]
         with:
-          node-version: "*"
-          cache: pnpm
+            node-version: ${{ matrix.node }}
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+    style:
+        name: Style checks
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
 
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+            - name: Install Node.js
+              id: node-setup
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "*"
 
-      - name: Lint
-        uses: reviewdog/action-eslint@v1
-        with:
-          reporter: github-pr-check,github-pr-review
-          level: error
-          reviewdog_flags: -name=eslint
+            - name: Style
+              run: npx prettier --write . 2>&1 | tee ./style.log
 
-      - name: Style
-        uses: EPMatt/reviewdog-action-prettier@v1
-        with:
-            reporter: github-pr-review
-            level: warning
+            - name: Upload style log
+              uses: actions/upload-artifact@v3
+              with:
+                  name: style-log
+                  path: ./style.log
 
-      - name: Alex
-        uses: reviewdog/action-alex@v1
-        with:
-          reporter: github-pr-review
-          level: warning
-          reviewdog_flags: -name=alex
+            - name: Clear log
+              run: rm ./style.log
+
+            - name: Generate patch
+              run: git diff > style.patch
+
+            - name: Upload style patch
+              uses: actions/upload-artifact@v3
+              with:
+                name: style-patch
+                path: ./style.patch
+
+    alex:
+        name: Alex checks
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Install Node.js
+              id: node-setup
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "*"
+
+            - name: Alex
+              run: npx alex . 2>&1 >/dev/null | tee ./alex.log
+
+            - name: Upload alex log
+              uses: actions/upload-artifact@v3
+              with:
+                  name: alex-log
+                  path: ./alex.log
+
+    linting:
+        name: Linting checks
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Install Node.js
+              id: node-setup
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "*"
+                  cache: pnpm
+
+            - name: Setup PNPM
+              uses: pnpm/action-setup@v2
+
+            - name: Install Dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Add output formatter
+              run: pnpm add eslint-formatter-rdjson
+
+            - name: Lint
+              run: pnpm eslint -f eslint-formatter-rdjson --ignore-path .gitignore . > eslint.log
+
+            - name: Upload eslint log
+              uses: actions/upload-artifact@v3
+              with:
+                  name: eslint-log
+                  path: ./eslint.log
