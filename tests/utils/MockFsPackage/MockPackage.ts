@@ -4,6 +4,7 @@ import { Volume } from "memfs";
 import { Err, Ok, Result } from "ts-results";
 // eslint-disable-next-line ava/no-import-test-files
 import { MockPart } from "./MockPart";
+import MIMEType from "whatwg-mimetype";
 
 export class MockPackage extends Package {
 	filesystem;
@@ -13,13 +14,23 @@ export class MockPackage extends Package {
 		string,
 		{
 			e: ErrorResult;
-			operation: ("DELETE" | "EXIST" | "GET")[];
+			operation: ("DELETE" | "EXIST" | "GET" | "CREATE")[];
 		}
 	> = {};
 
 	constructor() {
 		super();
 		this.filesystem = Volume.fromJSON({});
+	}
+
+	protected createPartCore(name: string, mime: MIMEType): Promise<Result<Part, ErrorResult>> {
+		if (this.configuredPartErrors[name]?.operation.includes("CREATE")) {
+			return Promise.resolve(Err(this.configuredPartErrors[name].e));
+		}
+
+		this.mimes[name] = mime.toString();
+
+		return Promise.resolve(Ok<Part>(new MockPart(this, name, this.mimes[name])));
 	}
 
 	protected deletePartCore(name: string): Promise<Result<void, ErrorResult>> {

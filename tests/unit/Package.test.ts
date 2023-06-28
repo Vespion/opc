@@ -6,10 +6,12 @@ import { MockPackage } from "../utils/MockFsPackage/MockPackage";
 import { partName, streamToString } from "../utils/Helpers";
 import { ErrorResult } from "../../src";
 import { Result } from "ts-results";
+import MIMEType from "whatwg-mimetype";
 
 function generateErrorPropagationTest(
-	section: "DELETE" | "EXIST" | "GET",
-	partOperation: (pkg: MockPackage, path: string) => Promise<Result<unknown, ErrorResult>>
+	section: "DELETE" | "EXIST" | "GET" | "CREATE",
+	partOperation: (pkg: MockPackage, path: string) => Promise<Result<unknown, ErrorResult>>,
+	create: boolean = true
 ) {
 	return testProp(
 		"propagates errors from concrete implementations",
@@ -26,8 +28,10 @@ function generateErrorPropagationTest(
 		async (path, data, resultMsg, errMsg, errName, errStack) => {
 			const pkg = new MockPackage();
 
-			pkg.mimes[path] = "application/octet-stream+text";
-			await pkg.filesystem.promises.writeFile(path, data);
+			if (create) {
+				pkg.mimes[path] = "application/octet-stream+text";
+				await pkg.filesystem.promises.writeFile(path, data);
+			}
 
 			const e = new Error(errMsg);
 			e.name = errName;
@@ -175,4 +179,53 @@ describe("deleting parts", () => {
 
 		expect(exists).toBe(false);
 	});
+});
+
+describe("creating parts", () => {
+	generateErrorPropagationTest("CREATE", (pkg, p) => pkg.createPart(p, new MIMEType("text/plain")), false);
+
+	testProp(
+		"creates new part",
+		[
+			fc
+				.webPath()
+				.filter(isAbsolute)
+				.filter(s => !s.endsWith("/"))
+				.filter(s => !s.endsWith("."))
+		],
+		async path => {
+			const pkg = new MockPackage();
+
+			const part = (await pkg.createPart(path, new MIMEType("text/plain"))).unwrap();
+
+			expect(part).toBeTruthy();
+		}
+	);
+
+	testProp(
+		"does not overwrite existing part",
+		[
+			fc
+				.webPath()
+				.filter(isAbsolute)
+				.filter(s => !s.endsWith("/"))
+				.filter(s => !s.endsWith("."))
+		],
+		async path => {
+			const pkg = new MockPackage();
+
+			await pkg.filesystem.promises.writeFile(path, "test data");
+
+			const result = await pkg.createPart(path, new MIMEType("text/plain"));
+
+			expect(result.err).toBe(true);
+
+			const error = result.val as ErrorResult;
+
+			expect(error.Category).toBe("PART");
+			expect(error.Code).toBe("CONFLICT");
+			expect(error.Error).toBeFalsy();
+			expect(error.Message).toBeFalsy();
+		}
+	);
 });
