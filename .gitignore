@@ -283,3 +283,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+
+# stryker temp files
+.stryker-tmp
+reports

@@ -1,4 +1,4 @@
-import { ErrorResult, Part } from "../../src";
+import { ErrorResult, Part } from "../../../src";
 import MIMEType from "whatwg-mimetype";
 import { Ok, Result } from "ts-results";
 import { Readable, Writable } from "stream";

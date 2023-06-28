@@ -1,33 +1,33 @@
 import { LocalisedString } from "./LocalisedString";
 
 export interface CoreProperties {
-	category: string;
+	category?: string;
 
-	contentStatus: string;
+	contentStatus?: string;
 
-	created: Date;
+	created?: Date;
 
-	creator: string;
+	creator?: string;
 
-	description: string;
+	description?: string;
 
-	identifier: string;
+	identifier?: string;
 
-	keywords: LocalisedString[];
+	keywords?: LocalisedString[];
 
-	language: string;
+	language?: string;
 
-	lastModifiedBy: string;
+	lastModifiedBy?: string;
 
-	lastPrinted: Date;
+	lastPrinted?: Date;
 
-	modified: Date;
+	modified?: Date;
 
-	revision: string;
+	revision?: string;
 
-	subject: string;
+	subject?: string;
 
-	title: string;
+	title?: string;
 
-	version: string;
+	version?: string;
 }

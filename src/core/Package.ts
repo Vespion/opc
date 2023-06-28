@@ -1,8 +1,15 @@
 import { Err, Result } from "ts-results";
 import { ErrorResult } from "../types";
 import { Part } from "./Part";
+import { CorePropertiesPart } from "./knownParts/CorePropertiesPart";
 
 export abstract class Package {
+	static KnownPartNames = {
+		CORE_PROPERTIES: "/docProps/core.xml"
+	};
+
+	protected abstract createPartCore(name: string): Promise<Result<Part, ErrorResult>>;
+
 	protected abstract getPartCore(name: string): Promise<Result<Part, ErrorResult>>;
 
 	protected abstract deletePartCore(name: string): Promise<Result<void, ErrorResult>>;
